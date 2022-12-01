@@ -1,3 +1,4 @@
+import itertools
 from pathlib import Path
 from typing import Iterator
 
@@ -9,18 +10,8 @@ def get_lines() -> Iterator[str]:
             yield line.rstrip()
 
 
-def get_snacks(lines: Iterator[str]) -> Iterator[list[int]]:
-    snacks = []
-    for line in lines:
-        if line:
-            snacks.append(int(line))
-
-        else:
-            yield snacks
-            snacks = []
-
-    if snacks:
-        yield snacks
+def get_snacks(lines: Iterator[str]) -> Iterator[Iterator[int]]:
+    return (map(int, g) for k, g in itertools.groupby(lines, key=bool) if k)
 
 
 def run():

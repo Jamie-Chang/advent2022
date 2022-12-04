@@ -22,6 +22,5 @@ def find_item(compartments: tuple[str, str]) -> str:
 
 
 def run():
-
     items = map(find_item, get_compartments(get_lines(day=3)))
     return sum(ITEM_VALUE[item] for item in items)

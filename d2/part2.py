@@ -1,7 +1,5 @@
 from typing import Iterable, Iterator
 
-from common import get_lines
-
 from .part1 import (
     ACTION_SCORE,
     LOSE_AGAINST,
@@ -9,7 +7,6 @@ from .part1 import (
     WINS_AGAINST,
     Action,
     Result,
-    get_lines,
 )
 
 
@@ -47,8 +44,8 @@ def get_strategy(lines: Iterable[str]) -> Iterator[tuple[Action, Result]]:
         yield ACTION_MAP[opponent], RESULT_MAP[result]
 
 
-def run() -> int:
+def run(lines: Iterable[str]) -> int:
     return sum(
         (ACTION_SCORE[get_action(o, r)] + RESULT_SCORE[r])
-        for o, r in get_strategy(get_lines(day=2))
+        for o, r in get_strategy(lines)
     )

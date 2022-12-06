@@ -1,6 +1,6 @@
 from itertools import starmap
+from typing import Iterable
 
-from common import get_lines
 from more_itertools import chunked
 
 from .part1 import ITEM_VALUE
@@ -13,11 +13,5 @@ def find_common(rucksack: str, *others: str) -> str:
     return items.pop()
 
 
-def run() -> int:
-    return sum(
-        ITEM_VALUE[i]
-        for i in starmap(
-            find_common,
-            chunked(get_lines(day=3), n=3),
-        )
-    )
+def run(lines: Iterable[str]) -> int:
+    return sum(ITEM_VALUE[i] for i in starmap(find_common, chunked(lines, n=3)))

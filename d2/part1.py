@@ -3,8 +3,6 @@ from __future__ import annotations
 from enum import Enum, auto
 from typing import Iterable, Iterator
 
-from common import get_lines
-
 
 class Result(Enum):
     LOSE = auto()
@@ -74,5 +72,5 @@ def score(strategy: Iterator[tuple[Action, Action]]) -> int:
     return sum(RESULT_SCORE[get_result(o, p)] + ACTION_SCORE[p] for o, p in strategy)
 
 
-def run() -> int:
-    return score(get_strategy(get_lines(day=2)))
+def run(lines: Iterable[str]) -> int:
+    return score(get_strategy(lines))

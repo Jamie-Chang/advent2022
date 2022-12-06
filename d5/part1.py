@@ -5,8 +5,6 @@ from typing import Iterable, Iterator, NamedTuple, NewType, TypeAlias, cast
 from more_itertools import chunked
 from parse import Result, compile
 
-from common import get_lines
-
 
 Crate = NewType("Crate", str)
 StackNumber = NewType("StackNumber", int)
@@ -91,8 +89,8 @@ def read_answer(stacks: Stacks) -> str:
     return "".join(stacks[StackNumber(s)].peek() for s in range(1, max(stacks) + 1))
 
 
-def run():
-    stacks, moves = parse(get_lines(day=5))
+def run(lines: Iterable[str]):
+    stacks, moves = parse(lines)
     for number, start, end in moves:
         for _ in range(number):
             stacks[end].push(stacks[start].pop())

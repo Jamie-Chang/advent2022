@@ -1,4 +1,4 @@
-from common import get_path
+from pathlib import Path
 
 from typing import Iterable, Iterator, TypeVar
 
@@ -39,6 +39,6 @@ def get_marker_position(stream: str, size: int):
     return first(p for p, w in enumerate(marker_window, size) if unique(w))
 
 
-def run():
-    stream = get_path(day=6).read_text()
+def run(path: Path):
+    stream = path.read_text()
     return get_marker_position(stream, 4), get_marker_position(stream, 14)

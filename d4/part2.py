@@ -1,7 +1,6 @@
-from common import get_lines
+from typing import Iterable
 
 from .part1 import Assignment, parse_assignment
-
 
 
 def overlaps(assignment: Assignment) -> bool:
@@ -30,6 +29,6 @@ def overlaps(assignment: Assignment) -> bool:
             return True
 
 
-def run() -> int:
-    assignments = map(parse_assignment, get_lines(day=4))
+def run(lines: Iterable[str]) -> int:
+    assignments = map(parse_assignment, lines)
     return sum(1 for assignment in assignments if overlaps(assignment))

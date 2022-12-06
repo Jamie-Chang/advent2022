@@ -1,9 +1,8 @@
 from heapq import nlargest
+from typing import Iterable
 
-from common import get_lines
-
-from .part1 import get_lines, get_snacks
+from .part1 import get_snacks
 
 
-def run():
-    return sum(nlargest(3, map(sum, get_snacks(get_lines(day=1)))))
+def run(lines: Iterable[str]) -> int:
+    return sum(nlargest(3, map(sum, get_snacks(lines))))

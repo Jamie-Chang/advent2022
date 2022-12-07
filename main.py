@@ -12,7 +12,7 @@ def run(day: Optional[int] = None):
     """Run the code for a certain day."""
     if day:
         module = importlib.import_module(f"d{day}")
-        typer.echo(f"day {day}: {module.run()}")
+        typer.echo(f"day {day}: {module.run(get_input(day=day))}")
         return
 
     for day in range(1, 26):

@@ -1,0 +1,5 @@
+{
+    "black-formatter.args": [
+        "-t py311"
+    ]
+}

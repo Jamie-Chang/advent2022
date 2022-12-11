@@ -2,11 +2,12 @@ from typing import Iterable, TypeAlias
 
 from parse import compile
 
+from common import strict
 
 Assignment: TypeAlias = tuple[tuple[int, int], tuple[int, int]]
 
 
-ASSIGNMENT_FORMAT = compile("{:d}-{:d},{:d}-{:d}")
+ASSIGNMENT_FORMAT = strict(compile("{:d}-{:d},{:d}-{:d}"))
 
 
 def parse_assignment(line: str) -> tuple[tuple[int, int], tuple[int, int]]:
@@ -15,7 +16,7 @@ def parse_assignment(line: str) -> tuple[tuple[int, int], tuple[int, int]]:
     ((30, 60), (47, 87))
     """
     result = ASSIGNMENT_FORMAT.parse(line)
-    return tuple(result[:2]), tuple(result[2:])  # type: ignore
+    return tuple(result[:2]), tuple(result[2:])
 
 
 def overlaps(assignment: Assignment) -> bool:

@@ -3,8 +3,9 @@ from dataclasses import dataclass, field
 from typing import Iterable, Iterator, NamedTuple, NewType, TypeAlias, cast
 
 from more_itertools import chunked
-from parse import Result, compile
+from parse import compile
 
+from common import strict
 
 Crate = NewType("Crate", str)
 StackNumber = NewType("StackNumber", int)
@@ -66,17 +67,15 @@ class Move(NamedTuple):
     end: StackNumber
 
 
-LINE_FORMAT = compile("move {number:d} from {start:d} to {end:d}")
+LINE_FORMAT = strict(compile("move {number:d} from {start:d} to {end:d}"))
 
 
 def parse_move(line: str) -> Move:
     result = LINE_FORMAT.parse(line)
-    assert result is not None
-    result = cast(Result, result)
     return Move(
-        result["number"],  # type: ignore
-        StackNumber(result["start"]),  # type: ignore
-        StackNumber(result["end"]),  # type: ignore
+        result["number"],
+        StackNumber(result["start"]),
+        StackNumber(result["end"]),
     )
 
 

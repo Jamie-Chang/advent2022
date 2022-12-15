@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterator, ParamSpec, TypeVar, cast
+from typing import Callable, Iterable, Iterator, ParamSpec, TypeVar, cast
 
 from parse import Parser, Result
 
@@ -14,6 +14,16 @@ def read_lines(path: Path) -> Iterator[str]:
     with path.open() as f:
         for line in f:
             yield line.rstrip()
+
+
+T = TypeVar("T")
+
+
+def first(values: Iterable[T]) -> T:
+    for v in values:
+        return v
+
+    raise ValueError("Expected a non-empty iterator")
 
 
 T1 = TypeVar("T1")

@@ -26,6 +26,14 @@ def first(values: Iterable[T]) -> T:
     raise ValueError("Expected a non-empty iterator")
 
 
+def nth(values: Iterable[T], n: int) -> T:
+    for i, v in enumerate(values):
+        if i == n - 1:
+            return v
+
+    assert False
+
+
 T1 = TypeVar("T1")
 T2 = TypeVar("T2")
 P = ParamSpec("P")

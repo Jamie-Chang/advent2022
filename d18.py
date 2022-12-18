@@ -1,12 +1,9 @@
 from collections import deque
 from dataclasses import dataclass
-import operator
 from pathlib import Path
-from typing import Iterable, Iterator, TypeAlias
-
+from typing import Iterable, Iterator, NamedTuple, TypeAlias
 
 from common import fcast, isum, read_lines
-
 
 Coord: TypeAlias = tuple[int, int, int]
 
@@ -62,23 +59,19 @@ def get_neighbours(coord: Coord, diagonal: bool = False) -> Iterator[Coord]:
     yield x, y - 1, z + 1
 
 
-def get_surface_area(cubes: set[Coord]) -> Iterator[int]:
-    for cube in cubes:
-        yield sum(1 for n in get_neighbours(cube) if n not in cubes)
-
-
-def distance_squared(cube: Coord, start: Coord = (0, 0, 0)) -> int:
+class Surface(NamedTuple):
     """
-    >>> distance_squared((1, 1, 1))
-    3
+    The surface is the boundary between the two coordinates.
     """
-    return sum(diff * diff for diff in map(operator.sub, cube, start))
+
+    air: Coord
+    cube: Coord
 
 
 @dataclass
 class Droplet:
     """
-    >>> sum(1 for _ in Droplet(cubes={(0, 0, 0), (0, 0, 1), }).get_outer_surface())
+    >>> isum(Droplet(cubes={(0, 0, 0), (0, 0, 1)}).get_outer_surface())
     10
     """
 
@@ -91,10 +84,13 @@ class Droplet:
         starting_cube = min(self.cubes, key=lambda c: c[0])
         return starting_cube[0] - 1, starting_cube[1], starting_cube[2]
 
-    def get_outer_surface_area(self) -> int:
-        return sum(isum(surfaces) for _, surfaces in self._get_air_shell())
+    def get_surface(self) -> Iterator[Surface]:
+        for cube in self.cubes:
+            for neighbour in get_neighbours(cube):
+                if neighbour not in self.cubes:
+                    yield Surface(neighbour, cube)
 
-    def _get_air_shell(self) -> Iterator[tuple[Coord, Iterator[Coord]]]:
+    def get_outer_surface(self) -> Iterator[Surface]:
         start = self.get_starting_point()
         visited: set[Coord] = set()
         queue = deque([start])
@@ -108,14 +104,16 @@ class Droplet:
                 continue
 
             neighbours = list(get_neighbours(coord))
-
-            yield coord, (n for n in neighbours if n in self.cubes)
-            queue.extend(n for n in neighbours if n not in self.cubes)
+            for neighbour in neighbours:
+                if neighbour in self.cubes:
+                    yield Surface(air=coord, cube=neighbour)
+                else:
+                    queue.append(neighbour)
 
 
 @fcast(tuple)
 def run(data: Path):
-    cubes = set(get_cubes(read_lines(data)))
+    droplet = Droplet(set(get_cubes(read_lines(data))))
 
-    yield sum(get_surface_area(cubes))
-    yield Droplet(cubes).get_outer_surface_area()
+    yield isum(droplet.get_surface())
+    yield isum(droplet.get_outer_surface())

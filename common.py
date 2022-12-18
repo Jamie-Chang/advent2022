@@ -34,6 +34,10 @@ def nth(values: Iterable[T], n: int) -> T:
     assert False
 
 
+def isum(values: Iterable) -> int:
+    return sum(1 for _ in values)
+
+
 T1 = TypeVar("T1")
 T2 = TypeVar("T2")
 P = ParamSpec("P")

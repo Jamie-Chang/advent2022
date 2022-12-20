@@ -28,7 +28,7 @@ def first(values: Iterable[T]) -> T:
 
 def nth(values: Iterable[T], n: int) -> T:
     for i, v in enumerate(values):
-        if i == n - 1:
+        if i == n:
             return v
 
     assert False

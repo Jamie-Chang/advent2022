@@ -309,7 +309,7 @@ class CumulativeCycle:
 def run(path: Path):
     rocks = cycle(enumerate(get_rocks()))
     directions = cycle(enumerate(get_directions(path.read_text())))
-    _, height = nth(get_chamber_state(rocks, directions), n=2022)
+    _, height = nth(get_chamber_state(rocks, directions), n=2021)
     yield height
 
     rocks = cycle(enumerate(get_rocks()))

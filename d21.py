@@ -96,11 +96,10 @@ async def newton_raphson(
         start += diff // gradient
 
 
-async def difference(number: int, human: Monkey, left: Monkey, right: Monkey):
+async def difference(number: int, human: Monkey, root: Monkey):
     human.reset_number()
     human.set_number(number)
-    value = await left.result - await right.result
-    return value
+    return await root.result
 
 
 async def part1(lines: Iterable[str]) -> int:
@@ -111,17 +110,14 @@ async def part1(lines: Iterable[str]) -> int:
 async def part2(lines: Iterable[str]) -> int:
     monkeys = Monkeys.from_lines(lines)
 
-    root_formula = cast(str, await monkeys.pop("root").get_number())
-    left, _, right = root_formula.split(" ")
+    root = monkeys["root"]
+    human = monkeys["humn"]
 
-    return await newton_raphson(
-        lambda n: difference(
-            n,
-            monkeys["humn"],
-            monkeys[left],
-            monkeys[right],
-        )
-    )
+    left, _, right = cast(str, await root.get_number()).split(" ")
+    root.reset_number()
+    root.set_number(f"{left} - {right}")
+
+    return await newton_raphson(lambda n: difference(n, human, root))
 
 
 def run(data: Path):

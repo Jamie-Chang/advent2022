@@ -1,5 +1,8 @@
 {
     "black-formatter.args": [
         "-t py311"
+    ],
+    "cSpell.words": [
+        "humn"
     ]
 }

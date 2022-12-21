@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
 from typing import Callable, Iterable, Self, cast
 
@@ -10,12 +11,12 @@ from common import read_lines
 @dataclass
 class Monkey:
     monkeys: dict[str, Monkey]
-    number: int | str | None = None
+    number: Decimal | str | None = None
 
     @property
-    def result(self) -> int:
+    def result(self) -> Decimal:
         assert self.number is not None
-        if isinstance(self.number, int):
+        if isinstance(self.number, Decimal):
             return self.number
 
         left, op, right = self.number.split(" ")
@@ -33,7 +34,7 @@ class Monkey:
             return left_value - right_value
 
         if op == "/":
-            return left_value // right_value
+            return left_value / right_value
 
         assert False
 
@@ -50,7 +51,7 @@ class Monkeys:
 
         return monkeys
 
-    def add(self, name: str, number: str | int) -> Monkey:
+    def add(self, name: str, number: str | Decimal) -> Monkey:
         monkey = self.monkeys[name] = Monkey(self.monkeys, number)
         return monkey
 
@@ -61,39 +62,38 @@ class Monkeys:
         return self.monkeys[name]
 
 
-def parse_line(line: str) -> tuple[str, int | str]:
+def parse_line(line: str) -> tuple[str, Decimal | str]:
     name, number = line.split(": ")
     if number.isdigit():
-        return name, int(number)
+        return name, Decimal(number)
 
     return name, number
 
 
 def newton_raphson(
-    fn: Callable[[int], int],
-    start: int = 0,
-    target: int = 0,
-    delta: int = 3,
-) -> int:
+    fn: Callable[[Decimal], Decimal],
+    start: Decimal = Decimal(0),
+    target: Decimal = Decimal(0),
+) -> Decimal:
     while True:
         start_val = fn(start)
-        gradient = (fn(start + delta) - start_val) // delta
+        gradient = (fn(start + 1) - start_val) // 1
         diff = target - start_val
         if diff == 0:
             return start
         start += diff // gradient
 
 
-def difference(number: int, human: Monkey, root: Monkey):
+def difference(number: Decimal, human: Monkey, root: Monkey):
     human.number = number
     return root.result
 
 
-def part1(lines: Iterable[str]) -> int:
+def part1(lines: Iterable[str]) -> Decimal:
     return Monkeys.from_lines(lines)["root"].result
 
 
-def part2(lines: Iterable[str]) -> int:
+def part2(lines: Iterable[str]) -> Decimal:
     monkeys = Monkeys.from_lines(lines)
 
     root = monkeys["root"]
@@ -106,4 +106,4 @@ def part2(lines: Iterable[str]) -> int:
 
 
 def run(data: Path):
-    return part1(read_lines(data)), part2(read_lines(data))
+    return int(part1(read_lines(data))), int(part2(read_lines(data)))

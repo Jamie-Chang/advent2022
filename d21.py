@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Awaitable, Callable, Iterable, Self, cast
+from typing import Callable, Iterable, Self, cast
 
 from common import read_lines
 
@@ -11,29 +10,18 @@ from common import read_lines
 @dataclass
 class Monkey:
     monkeys: dict[str, Monkey]
-    number: asyncio.Future[int | str] = field(
-        init=False, default_factory=asyncio.Future
-    )
-
-    async def get_number(self) -> int | str:
-        return await self.number
-
-    def reset_number(self) -> None:
-        self.number = asyncio.Future()
-
-    def set_number(self, number: int | str) -> None:
-        self.number.set_result(number)
+    number: int | str | None = None
 
     @property
-    async def result(self) -> int:
-        number = await self.number
+    def result(self) -> int:
+        assert self.number is not None
+        if isinstance(self.number, int):
+            return self.number
 
-        if isinstance(number, int):
-            return number
+        left, op, right = self.number.split(" ")
 
-        left, op, right = number.split(" ")
-        left_value = await self.monkeys[left].result
-        right_value = await self.monkeys[right].result
+        left_value = self.monkeys[left].result
+        right_value = self.monkeys[right].result
 
         if op == "*":
             return left_value * right_value
@@ -58,12 +46,12 @@ class Monkeys:
     def from_lines(cls, lines: Iterable[str]) -> Self:
         monkeys = cls()
         for line in lines:
-            name, number = parse_line(line)
-            monkeys.add(name).set_number(number)
+            monkeys.add(*parse_line(line))
+
         return monkeys
 
-    def add(self, name: str) -> Monkey:
-        monkey = self.monkeys[name] = Monkey(self.monkeys)
+    def add(self, name: str, number: str | int) -> Monkey:
+        monkey = self.monkeys[name] = Monkey(self.monkeys, number)
         return monkey
 
     def pop(self, name: str) -> Monkey:
@@ -81,44 +69,41 @@ def parse_line(line: str) -> tuple[str, int | str]:
     return name, number
 
 
-async def newton_raphson(
-    fn: Callable[[int], Awaitable[int]],
+def newton_raphson(
+    fn: Callable[[int], int],
     start: int = 0,
     target: int = 0,
     delta: int = 3,
 ) -> int:
     while True:
-        start_val = await fn(start)
-        gradient = (await fn(start + delta) - start_val) // delta
+        start_val = fn(start)
+        gradient = (fn(start + delta) - start_val) // delta
         diff = target - start_val
         if diff == 0:
             return start
         start += diff // gradient
 
 
-async def difference(number: int, human: Monkey, root: Monkey):
-    human.reset_number()
-    human.set_number(number)
-    return await root.result
+def difference(number: int, human: Monkey, root: Monkey):
+    human.number = number
+    return root.result
 
 
-async def part1(lines: Iterable[str]) -> int:
-    monkeys = Monkeys.from_lines(lines)
-    return await monkeys["root"].result
+def part1(lines: Iterable[str]) -> int:
+    return Monkeys.from_lines(lines)["root"].result
 
 
-async def part2(lines: Iterable[str]) -> int:
+def part2(lines: Iterable[str]) -> int:
     monkeys = Monkeys.from_lines(lines)
 
     root = monkeys["root"]
     human = monkeys["humn"]
 
-    left, _, right = cast(str, await root.get_number()).split(" ")
-    root.reset_number()
-    root.set_number(f"{left} - {right}")
+    left, _, right = cast(str, root.number).split(" ")
+    root.number = f"{left} - {right}"
 
-    return await newton_raphson(lambda n: difference(n, human, root))
+    return newton_raphson(lambda n: difference(n, human, root))
 
 
 def run(data: Path):
-    return asyncio.run(part1(read_lines(data))), asyncio.run(part2(read_lines(data)))
+    return part1(read_lines(data)), part2(read_lines(data))

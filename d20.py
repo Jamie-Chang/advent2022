@@ -10,50 +10,32 @@ from common import fcast, nth, read_lines
 
 @dataclass
 class Link:
-    """
-    >>> link = create_links([0, 1, 2, 3, 4])[0]
-    >>> link.to_list(5)
-    [0, 1, 2, 3, 4]
-    >>> link.move(2)
-    >>> link.to_list(5)
-    [0, 3, 4, 1, 2]
-    >>> link.move(-2)
-    >>> link.to_list(5)
-    [0, 1, 2, 3, 4]
-    >>> link.move(7)
-    >>> link.to_list(5)
-    [0, 3, 4, 1, 2]
-    >>> link.move(-7)
-    >>> link.to_list(5)
-    [0, 1, 2, 3, 4]
-    >>> link.move(0)
-    >>> link.to_list(5)
-    [0, 1, 2, 3, 4]
-    """
-
     value: int
-    _backwards: Link | None = None
-    _forwards: Link | None = None
+    backwards: Link = field(init=False)
+    forwards: Link = field(init=False)
 
-    @property
-    def backwards(self) -> Link:
-        assert self._backwards
-        return self._backwards
+    def __post_init__(self):
+        self.backwards = self.forwards = self
 
-    @backwards.setter
-    def backwards(self, value: Link):
-        self._backwards = value
-        value._forwards = self
+    def append(self, link: Link) -> None:
+        self.forwards.backwards = link.backwards
+        link.backwards.forwards = self.forwards
 
-    @property
-    def forwards(self) -> Link:
-        assert self._forwards
-        return self._forwards
+        self.forwards = link
+        link.backwards = self
 
-    @forwards.setter
-    def forwards(self, value: Link):
-        self._forwards = value
-        value._backwards = self
+    def prepend(self, link: Link) -> None:
+        link.forwards.backwards = self.backwards
+        self.backwards.forwards = link.forwards
+
+        link.forwards = self
+        self.backwards = link
+
+    def unlink(self) -> None:
+        self.forwards.backwards = self.backwards
+        self.backwards.forwards = self.forwards
+        self.forwards = self
+        self.backwards = self
 
     def __iter__(self):
         value = self
@@ -68,23 +50,16 @@ class Link:
             value = value.backwards
 
     def move(self, amount: int):
-        link_before = self
-        if amount == 0:
-            return
 
-        if amount >= 0:
+        if amount > 0:
             link_before = nth(self, amount)
-            link_after = link_before.forwards
-        else:
+            self.unlink()
+            link_before.append(self)
+
+        elif amount < 0:
             link_after = nth(reversed(self), abs(amount))
-            link_before = link_after.backwards
-
-        # Remove self
-        self.backwards.forwards = self.forwards
-
-        # Relink self
-        self.forwards = link_after
-        self.backwards = link_before
+            self.unlink()
+            link_after.prepend(self)
 
 
 @dataclass
@@ -125,10 +100,9 @@ class CircularList:
         links = [Link(next(values))]
 
         for v in values:
-            link = links[-1].forwards = Link(v)
+            link = Link(v)
+            links[-1].append(link)
             links.append(link)
-
-        links[-1].forwards = links[0]
 
         return cls(links)
 

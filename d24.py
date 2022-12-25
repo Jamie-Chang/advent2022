@@ -1,10 +1,10 @@
 from __future__ import annotations
-from collections import deque
 
+from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from functools import cache, cached_property
-from itertools import chain, count
+from functools import cached_property
+from itertools import chain
 from pathlib import Path
 from typing import Generic, Iterable, Iterator, Self, TypeAlias, TypeVar, assert_never
 
